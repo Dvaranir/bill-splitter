@@ -1,0 +1,47 @@
+:root {
+	--primary-color: #1f557c;
+	--secondary-color: #f2f2f2;
+
+    --text-small: 0.8rem;
+    --text-normal: 1.6rem;
+    --text-large: 2rem;
+    --text-xlarge: 3rem;
+}
+
+body {
+	background-color: var(--secondary-color);
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+tr,
+td {
+	color: var(--primary-color);
+}
+.container {
+	max-width: 31.25rem;
+	margin-left: auto;
+	margin-right: auto;
+}
+.splitter__heading {
+	text-align: center;
+}
+.splitter__form {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+.splitter__field{
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.splitter__button{
+    border-radius: 10px;
+    cursor: pointer;
+}
