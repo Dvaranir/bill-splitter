@@ -1,36 +1,57 @@
 <?php
 
-namespace api\models;
+require_once ROOT_DIR . '/api/models/Model.php';
+require_once ROOT_DIR . '/api/services/Validator.service.php';
 
-class UsersModel extends Model {
-    public $current_site;
+use api\models\Model;
 
-    // function __construct()
-    // {
-    //     parent::__construct();
-    // }
-    
-    // function get_all_users() {
-    //     $query = "SELECT Id, Name, SurName, Phone, EMail, oragnization, ArrivalTime FROM SystemUsers WHERE host = '" . $this->current_site . "' AND id != '1' AND email != 'kostya_mas%40mail.ru';";
-    //     return $this->select($query);
-    // }
-        
-    // function get_users($params) {
-    //     $query = "SELECT Id, Name, SurName, ArrivalTime FROM SystemUsers WHERE (Name LIKE '%" . $params . "%' OR SurName LIKE '%" . $params . "%') AND host = '" . $this->current_site . "';";
-    //     return $this->select($query);
-    // }
-        
-    // function get_user($user_id){
-    //     $query = "SELECT Id, Name, SurName, Phone, EMail, organization, ArrivalTime FROM SystemUsers WHERE id = '" . $user_id . "' AND host = '" . $this->current_site . "';";
-    //     return $this->select($query);
-    // }
-        
-    // function set_arival($user_id){
-    //     $query = "UPDATE SystemUsers SET ArrivalTime = '" . $this->kernel->DateTime . "' WHERE id = '" . $user_id . "' AND host = '" . $this->current_site . "';";
-    //     $this->update($query);
-    // }
+class UsersModel extends Model
+{
 
-
+  public function getAll()
+  {
+    $query = "SELECT * FROM users";
+    return $this->execute($query);
   }
 
-?>
+  public function add($name, $email)
+  {
+    $query = "INSERT INTO users (name, email) VALUES (?, ?)";
+    $conn = $this->connect();
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ss", $name, $email);
+    return $stmt->execute();
+  }
+
+  public function deleteAll()
+  {
+    $query = "DELETE FROM users";
+    return $this->execute($query);
+  }
+
+  public function divideBillBetweenUsers($total = 100)
+  {
+    $value = $this->calcDividedPayment($total);
+    if (empty($value)) return $value;
+    return $this->setToPay($value);
+  }
+
+  public function setToPay($value)
+  {
+    $query = "UPDATE users SET to_pay = ?";
+    $conn = $this->connect();
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("d", $value);
+    return $stmt->execute();
+  }
+
+  public function calcDividedPayment($total)
+  {
+    $query = "SELECT COUNT(*) as total FROM users";
+    $totalUsers = $this->execute($query);
+    $totalUsers = json_decode($totalUsers);
+    $totalUsers = $totalUsers[0]->total;
+
+    return $total / $totalUsers;
+  }
+}

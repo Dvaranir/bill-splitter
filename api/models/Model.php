@@ -7,11 +7,7 @@ use mysqli;
 class Model
 {
 
-    function __construct()
-    {
-    }
-
-    function connect()
+    public function connect()
     {
         $servername = $_ENV['DB_HOST'];
         $username = $_ENV['DB_USER'];
@@ -31,20 +27,26 @@ class Model
         return $conn;
     }
 
-    function execute($query)
+    public function execute($query)
     {
         $conn = $this->connect();
         $result = $conn->query($query);
+
+        if (empty($result) || is_bool($result)) return $result;
+
+        $data = $this->makeJsonArray($result);
+
         $conn->close();
-        return $result;
+
+        return $data;
     }
 
-    function makeArray($queryResult)
+    public function makeJsonArray($result)
     {
-        $my_array = [];
-        foreach ($queryResult as $result) {
-            $my_array[] = $result;
-        }
-        return $my_array;
+        $data = [];
+
+        while ($row = $result->fetch_assoc()) $data[] = $row;
+
+        return json_encode($data);
     }
 }

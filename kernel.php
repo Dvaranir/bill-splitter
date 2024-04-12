@@ -2,23 +2,28 @@
 class Kernel
 {
 
-    public $DataBase;
 
     function __construct()
     {
-        $this->loadEnv('.env');
         define('ROOT_DIR', __DIR__);
+        $this->loadEnv('.env');
+    }
+
+    public function absoluteRequire($path)
+    {
+        require_once(ROOT_DIR . $path);
     }
 
     public function e404()
     {
         http_response_code(404);
-        include_once 'views/global/404.php';
+        require_once ROOT_DIR . '/views/global/404.php';
         die();
     }
 
     function loadEnv($file)
     {
+        $file = ROOT_DIR . "/$file";
         if (!file_exists($file)) {
             return false;
         }
@@ -33,6 +38,10 @@ class Kernel
             $name = trim($name);
             $value = trim($value);
 
+
+            if (!array_key_exists($name, $_SERVER)) {
+                $_SERVER[$name] = $value;
+            }
             if (!array_key_exists($name, $_ENV)) {
                 $_ENV[$name] = $value;
             }
